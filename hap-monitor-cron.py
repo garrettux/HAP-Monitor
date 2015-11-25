@@ -97,7 +97,8 @@ def backend_graphite(url, stats, prefix):
     logger.debug('Reporting to prefix: %s' % prefix)
     server, port = url.split(':')
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((server, int(port)))
     except Exception, e:
         logger.error('Unable to connect to Graphite backend %s: %s' % (url, e))
         raise
@@ -109,6 +110,8 @@ def backend_graphite(url, stats, prefix):
         except Exception as e:
             logger.error('Failed reporting %s.%s %s %s\n' % (prefix, s, float(stats[s]), time.time()))
             logger.error(traceback.format_exc(e))
+
+    sock.close()
 
 
 def backend_statsd(url, stats, prefix):
